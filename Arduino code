@@ -1,0 +1,42 @@
+const int pirPin = 2;       // PIR sensor connected to D2
+const int buzzerPin = 8;    // Buzzer connected to D8
+const int vibMotorPin = 9;  // Vibration motor connected to D9
+const int ledPin = 10;      // LED connected to D10
+const int buttonPin = 7;    // Push button connected to D7
+
+int motionState = LOW;      // Variable to store PIR sensor state
+int alertActive = LOW;      // To track if alert is active
+
+void setup() {
+  pinMode(pirPin, INPUT);       // Set PIR pin as input
+  pinMode(buzzerPin, OUTPUT);   // Set buzzer pin as output
+  pinMode(vibMotorPin, OUTPUT); // Set vibration motor pin as output
+  pinMode(ledPin, OUTPUT);      // Set LED pin as output
+  pinMode(buttonPin, INPUT_PULLUP);  // Set button pin as input with internal pull-up resistor
+  Serial.begin(9600);           // Begin Serial communication for debugging
+}
+
+void loop() {
+  motionState = digitalRead(pirPin);  // Read PIR sensor
+
+  if (motionState == HIGH && alertActive == LOW) { // Motion detected and no active alert
+    alertActive = HIGH;             // Activate alert
+    digitalWrite(buzzerPin, HIGH);  // Turn on buzzer
+    digitalWrite(vibMotorPin, HIGH); // Turn on vibration motor
+    digitalWrite(ledPin, HIGH);     // Turn on LED
+    Serial.println("Motion detected - alert active!");
+
+    delay(2000); // Keep alert active for 2 seconds
+  }
+
+  // Reset the alert if the button is pressed
+  if (digitalRead(buttonPin) == LOW && alertActive == HIGH) {
+    alertActive = LOW;              // Reset alert
+    digitalWrite(buzzerPin, LOW);   // Turn off buzzer
+    digitalWrite(vibMotorPin, LOW); // Turn off vibration motor
+    digitalWrite(ledPin, LOW);      // Turn off LED
+    Serial.println("Alert acknowledged.");
+  }
+
+  delay(100); // Short delay before re-checking sensor
+}
